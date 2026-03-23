@@ -9,8 +9,8 @@ Configure via .env:
 import os, subprocess
 from pathlib import Path
 
-DEST        = Path(os.environ.get("LACIE_PHOTOS", "/Volumes/LaCie/photos icloud"))
-TOTAL       = int(os.environ.get("PHOTO_EXPORT_TOTAL", "19132"))
+DEST        = Path(os.environ["LACIE_PHOTOS"]) if os.environ.get("LACIE_PHOTOS") else None
+TOTAL       = int(os.environ.get("PHOTO_EXPORT_TOTAL", "0"))
 EXPORT_CMD  = os.environ.get(
     "PHOTO_EXPORT_CMD",
     f'bash "{Path(__file__).parent.parent / "resume_photo_export.command"}"',
@@ -23,11 +23,13 @@ def sh(cmd):
         return ""
 
 def _count():
-    if not DEST.exists():
+    if not DEST or not DEST.exists():
         return None
     return int(sh(f'find "{DEST}" -type f | wc -l'))
 
 def status():
+    if not DEST:
+        return ""   # plugin inactive — LACIE_PHOTOS not set
     count = _count()
     if count is None:
         return "*Photos* — destination not mounted"

@@ -8,8 +8,8 @@ Configure via .env:
 import os, subprocess
 from pathlib import Path
 
-RESULTS_DIR  = Path(os.environ.get("ZOTERO_RESULTS_DIR", str(Path.home() / "Desktop" / "zotero_analysis_results")))
-ANALYSIS_CMD = os.environ.get("ZOTERO_ANALYSIS_CMD", f'python3 "{Path.home() / "Desktop" / "zotero_analysis.py"}"')
+RESULTS_DIR  = Path(os.environ["ZOTERO_RESULTS_DIR"]) if os.environ.get("ZOTERO_RESULTS_DIR") else None
+ANALYSIS_CMD = os.environ.get("ZOTERO_ANALYSIS_CMD", "")
 
 def sh(cmd):
     try:
@@ -18,7 +18,7 @@ def sh(cmd):
         return ""
 
 def status():
-    if not RESULTS_DIR.exists():
+    if not RESULTS_DIR or not RESULTS_DIR.exists():
         return ""
     files = list(RESULTS_DIR.glob("*.md"))
     prefixes = ("CROSS", "CLAIM", "INDEX", "METHOD", "SUMMARY")
@@ -41,6 +41,8 @@ TOOLS = [
 
 def execute_tool(name, args):
     if name == "zotero_analysis_start":
+        if not ANALYSIS_CMD:
+            return "Set ZOTERO_ANALYSIS_CMD in .env to enable this."
         subprocess.Popen(ANALYSIS_CMD, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         return "Zotero analysis started."
     return f"Unknown tool: {name}"

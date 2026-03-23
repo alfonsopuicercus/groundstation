@@ -14,7 +14,8 @@ load_dotenv(ROOT / ".env")
 TOKEN      = os.environ["TELEGRAM_TOKEN"]
 NVIDIA_KEY = os.environ["NVIDIA_API_KEY"]
 MODEL      = os.environ.get("NEMOTRON_MODEL", "nvidia/nemotron-3-super-120b-a12b")
-NC_SANDBOX = os.environ.get("NEMOCLAW_SANDBOX", "my-assistant")
+NC_SANDBOX  = os.environ.get("NEMOCLAW_SANDBOX", "my-assistant")
+NC_BIN      = os.environ.get("NEMOCLAW_BIN", str(Path.home() / ".nemoclaw/source/bin/nemoclaw.js"))
 
 NVIDIA_HEADERS = {"Authorization": f"Bearer {NVIDIA_KEY}", "Content-Type": "application/json"}
 
@@ -117,7 +118,7 @@ def cmd_agent(arg):
         return "Usage: `/agent <task>` — routes to the NemoClaw OpenClaw sandbox agent."
     try:
         ssh_config = subprocess.check_output(
-            ["node", str(Path.home() / ".nemoclaw/source/bin/nemoclaw.js"), NC_SANDBOX, "ssh-config"],
+            ["node", NC_BIN, NC_SANDBOX, "ssh-config"],
             text=True, stderr=subprocess.DEVNULL, timeout=10,
         )
     except Exception as e:

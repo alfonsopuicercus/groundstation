@@ -1,9 +1,9 @@
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/nemoclaw_notify.sh"
+source "$SCRIPT_DIR/core/notify.sh"
 
-DEST="${LACIE_PHOTOS:-/Volumes/LaCie/photos icloud}"
-TOTAL="${PHOTO_EXPORT_TOTAL:-19132}"
+DEST="${LACIE_PHOTOS:?Set LACIE_PHOTOS in .env}"
+TOTAL="${PHOTO_EXPORT_TOTAL:-0}"
 
 current_count() { find "$DEST" -type f | wc -l | tr -d ' '; }
 
@@ -25,7 +25,7 @@ tg_notify "Photo export started. Progress: $ALREADY / $TOTAL files on LaCie."
 ) &
 PROGRESS_PID=$!
 
-/Users/alfonso/.local/bin/osxphotos export "$DEST" --download-missing --skip-edited --update
+${OSXPHOTOS_BIN:-osxphotos} export "$DEST" --download-missing --skip-edited --update
 EXIT_CODE=$?
 kill $PROGRESS_PID 2>/dev/null
 
